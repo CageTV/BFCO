@@ -97,8 +97,13 @@ public:
 
 		static void Install()
 		{
-			stl::write_vfunc<0x2, MovementHandler_ProcessThumbstick>(RE::VTABLE_MovementHandler[0]);
-			stl::write_vfunc<0x4, MovementHandler_ProcessButton>(RE::VTABLE_MovementHandler[0]);
+			// Skyrim 1.7.99+ (AE) gave PlayerInputHandler two new virtuals (ProcessMotionGesture / ProcessSixaxis) right after
+			// CanProcess, so ProcessThumbstick and ProcessButton moved from slots 0x2 / 0x4 to 0x4 / 0x6. Hooking the old slots
+			// on 1.7.x patches the base class stub instead and BFCO never sees the WASD movement keys.
+			const std::size_t shift = (!REL::Module::IsVR() && REL::Module::get().version() >= REL::Version(1, 7, 0, 0)) ? 2 : 0;
+			stl::write_vfunc<MovementHandler_ProcessThumbstick>(RE::VTABLE_MovementHandler[0], 0x2 + shift);
+			stl::write_vfunc<MovementHandler_ProcessButton>(RE::VTABLE_MovementHandler[0], 0x4 + shift);
+			logger::info("MovementHandler hooks installed at vfunc slots {:#x} (thumbstick) and {:#x} (button)", 0x2 + shift, 0x4 + shift);
 		}
 
 		static void ScheduleSinkRegistration(RE::Actor* actor, int attempts);

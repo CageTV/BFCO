@@ -31,6 +31,14 @@ namespace stl
 		REL::Relocation<std::uintptr_t> vtbl{ id };
 		T::func = vtbl.write_vfunc(idx, T::thunk);
 	}
+
+	// same, with the slot picked at runtime (see BFCO::Hooks::Install: the slots depend on the game version)
+	template <class T>
+	void write_vfunc(REL::VariantID id, std::size_t idx)
+	{
+		REL::Relocation<std::uintptr_t> vtbl{ id };
+		T::func = vtbl.write_vfunc(idx, T::thunk);
+	}
 }
 
 using namespace REL::literals;
