@@ -24,3 +24,7 @@
 Automatically imports:
 - [CLibUtil](https://github.com/powerof3/CLibUtil) by powerof3
 - [SKSE Menu Framework](https://www.nexusmods.com/skyrimspecialedition/mods/120352) by Thiago099
+
+## Fork: Skyrim 1.7.x (branch `ng`)
+
+The old CommonLibVR build (`CMakeLists.txt`) hooks `MovementHandler` virtual slots 0x2 and 0x4. Skyrim 1.7.99 added two virtuals after `PlayerInputHandler::CanProcess`, so `ProcessThumbstick` and `ProcessButton` are now slots 0x4 and 0x6 (checked in the MovementHandler vtable of SkyrimSE.exe 1.7.104). Hooking the old slots on 1.7.x patched the base-class stub instead, so BFCO never saw the WASD keys and directional power attacks broke. `Hooks::Install` now picks the slots at runtime and logs them. `ng.cmake` builds `BFCO.dll` on alandtse's CommonLibSSE-NG for Skyrim 1.6.1170 and 1.7.x; it is included from a parent CMake project that defines `ng_plugin()` (a thin wrapper around `add_commonlibsse_plugin`). This branch also needs the overlay ports in `cmake/ports` (clib-util, clib-utils-qtr, skse-mcp) and `rapidjson` through vcpkg.
